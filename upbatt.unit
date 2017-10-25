@@ -1,0 +1,15 @@
+[Unit]
+Description=upbatt daemon (battery uptime and stats)
+After=syslog.target
+
+[Service]
+User=xfennec
+Group=xfennec
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/run/upbatt
+ExecStartPre=/bin/chown xfennec:xfennec /var/run/upbatt
+ExecStart=/home/xfennec/Quiris/Go/bin/upbatt daemon
+PIDFile=/var/run/upbatt.pid
+
+[Install]
+WantedBy=multi-user.target
