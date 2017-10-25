@@ -1,0 +1,4 @@
+- ? "suspend count" on the current "boot"
+- support for upower-only (and not systemd) systems
+    -> "NotifySleep" / "Sleeping" signals?
+- test on multiple systems and distributions
