@@ -33,13 +33,17 @@ func NewDataLog() (*DataLog, error) {
 // internal channel pump
 func (dl *DataLog) pump() {
 	for str := range dl.Chan {
-		dl.Writer.WriteString(time.Now().Format(time.RFC3339) + ";")
-		dl.Writer.WriteString(str + "\n")
+		dl.Writer.WriteString(str)
 		dl.Writer.Flush()
 	}
 }
 
+// AppendRaw test
+func (dl *DataLog) AppendRaw(str string) {
+	dl.Chan <- str
+}
+
 // Append test
 func (dl *DataLog) Append(str string) {
-	dl.Chan <- str
+	dl.AppendRaw(time.Now().Format(time.RFC3339) + ";" + str + "\n")
 }

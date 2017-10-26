@@ -117,15 +117,6 @@ func signalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 	return nil
 }
 
-func pingSchedule(dl *DataLog, delay time.Duration) {
-	go func() {
-		for {
-			dl.Append("ping")
-			time.Sleep(delay)
-		}
-	}()
-}
-
 func upbattServer() error {
 	if err := Signal(); err != nil {
 		return err
@@ -145,7 +136,15 @@ func upbattServer() error {
 		return err3
 	}
 
-	pingSchedule(datalog, 30*time.Second)
+	if err := AliveCheck(datalog); err != nil {
+		return err
+	}
+
+	if err := AliveSchedule(15 * time.Second); err != nil {
+		return err
+	}
+
+	datalog.Append("start")
 
 	fmt.Println("ready.")
 	if err := signalPump(ch, datalog); err != nil {
