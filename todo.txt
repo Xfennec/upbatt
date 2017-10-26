@@ -1,3 +1,6 @@
+- CLI "default" and daemon mode
+- check for PID
+- write datalog to /var/run/upbatt
 - ? "suspend count" on the current "boot"
 - support for upower-only (and not systemd) systems
     -> "NotifySleep" / "Sleeping" signals?
