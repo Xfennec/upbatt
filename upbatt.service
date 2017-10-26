@@ -6,9 +6,9 @@ After=syslog.target
 User=xfennec
 Group=xfennec
 PermissionsStartOnly=true
-ExecStartPre=/bin/mkdir -p /var/run/upbatt
-ExecStartPre=/bin/chown xfennec:xfennec /var/run/upbatt
-ExecStart=/home/xfennec/Quiris/Go/bin/upbatt daemon
+ExecStartPre=/bin/mkdir -p /var/lib/upbatt
+ExecStartPre=/bin/chown xfennec:xfennec /var/lib/upbatt
+ExecStart=/home/xfennec/Quiris/Go/bin/upbatt -server
 PIDFile=/var/run/upbatt.pid
 
 [Install]

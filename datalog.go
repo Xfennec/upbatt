@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const dataLogPath = "/var/lib/upbatt/data.log"
+
 // DataLog test struct
 type DataLog struct {
 	File   *os.File
@@ -16,7 +18,7 @@ type DataLog struct {
 // NewDataLog test
 func NewDataLog() (*DataLog, error) {
 	var dl DataLog
-	f, err := os.OpenFile("data.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(dataLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
 	}

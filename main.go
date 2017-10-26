@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -79,7 +80,9 @@ func signalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 							// fmt.Println(key, val)
 						}
 					}
-					datalog.Append("data;" + strings.Join(properties, ","))
+					if len(properties) > 0 {
+						datalog.Append("data;" + strings.Join(properties, ","))
+					}
 				case LinePower:
 					// fmt.Println("--- PropertiesChanged on UPower.Device for a powerline:")
 					for key, val := range changedProperties {
@@ -153,8 +156,17 @@ func upbattServer() error {
 }
 
 func main() {
-	if err := upbattServer(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %s", err)
-		os.Exit(2)
+
+	server := flag.Bool("server", false, "start server daemon")
+
+	flag.Parse()
+
+	if *server == true {
+		if err := upbattServer(); err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+			os.Exit(2)
+		}
+	} else {
+		fmt.Println("we're the client.")
 	}
 }
