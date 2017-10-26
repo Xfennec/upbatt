@@ -136,15 +136,9 @@ func upbattServer() error {
 		return err3
 	}
 
-	if err := AliveCheck(datalog); err != nil {
+	if err := AliveSchedule(10*time.Second, datalog); err != nil {
 		return err
 	}
-
-	if err := AliveSchedule(15 * time.Second); err != nil {
-		return err
-	}
-
-	datalog.Append("start")
 
 	fmt.Println("ready.")
 	if err := signalPump(ch, datalog); err != nil {
