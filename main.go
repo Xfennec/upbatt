@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -122,31 +123,38 @@ func pingSchedule(dl *DataLog, delay time.Duration) {
 	}()
 }
 
-func main() {
-
-	if Signal() != nil {
-		return
+func upbattServer() error {
+	if err := Signal(); err != nil {
+		return err
 	}
 
-	if SignalSystemd() != nil {
-		return
+	if err := SignalSystemd(); err != nil {
+		return err
 	}
 
 	ch, err2 := Signals()
 	if err2 != nil {
-		return
+		return err2
 	}
 
 	datalog, err3 := NewDataLog()
 	if err3 != nil {
-		return
+		return err3
 	}
 
 	pingSchedule(datalog, 30*time.Second)
 
 	fmt.Println("ready.")
-	if signalPump(ch, datalog) != nil {
-		return
+	if err := signalPump(ch, datalog); err != nil {
+		return err
 	}
 
+	return nil
+}
+
+func main() {
+	if err := upbattServer(); err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %s", err)
+		os.Exit(2)
+	}
 }
