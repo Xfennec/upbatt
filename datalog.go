@@ -13,6 +13,7 @@ type DataLog struct {
 	file     *os.File
 	writer   *bufio.Writer
 	messages chan string
+	suspends []time.Time
 }
 
 // NewDataLog test
@@ -30,7 +31,7 @@ func NewDataLog() (*DataLog, error) {
 	return &dl, nil
 }
 
-// internal channel pump
+// internal message channel pump
 func (dl *DataLog) pump() {
 	for str := range dl.messages {
 		dl.writer.WriteString(str)
@@ -46,4 +47,19 @@ func (dl *DataLog) AppendRaw(str string) {
 // Append test
 func (dl *DataLog) Append(str string) {
 	dl.AppendRaw(time.Now().Format(time.RFC3339) + ";" + str + "\n")
+}
+
+// AddSuspendEvent test
+func (dl *DataLog) AddSuspendEvent() {
+	dl.suspends = append(dl.suspends, time.Now())
+}
+
+// AnySuspendEventBefore test
+func (dl *DataLog) AnySuspendEventBefore(date time.Time, window time.Duration) bool {
+	for _, suspend := range dl.suspends {
+		if date.Sub(suspend) <= window {
+			return true
+		}
+	}
+	return false
 }

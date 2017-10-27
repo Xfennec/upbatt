@@ -98,6 +98,7 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 			}
 			if prepare == true {
 				datalog.Append("sleep")
+				datalog.AddSuspendEvent()
 			} else {
 				datalog.Append("resume")
 			}

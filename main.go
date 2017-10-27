@@ -26,7 +26,7 @@ func upbattServer() error {
 		return err3
 	}
 
-	if err := AliveSchedule(10*time.Second, datalog); err != nil {
+	if err := AliveSchedule(5*time.Second, datalog); err != nil {
 		return err
 	}
 

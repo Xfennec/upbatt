@@ -24,9 +24,10 @@ func aliveCheckPauseLoop(delay time.Duration, dl *DataLog, fd *os.File) {
 					org := string(buffer[:pos]) // extract string
 					date, err := time.Parse(time.RFC3339, org)
 					if err == nil {
-						// if it was more than delay*2 time ago, add a stop / start
+						// if it was more than delay*2 time ago (and not
+						// a proper suspend/resume) add a stop / start
 						diff := now.Sub(date)
-						if diff > delay*2 {
+						if diff > delay*2 && dl.AnySuspendEventBefore(date, delay*2) == false {
 							dl.AppendRaw(date.Format(time.RFC3339) + ";stop\n")
 							dl.Append("start")
 						}
