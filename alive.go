@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func aliveCheckPauseLoop(delay time.Duration, dl *DataLog, fd *os.File) {
+func aliveCheckPauseLoop(delay time.Duration, dl *DataLogWriter, fd *os.File) {
 	go func() {
 		var buffer []byte
 		buffer = make([]byte, 128)
@@ -46,7 +46,7 @@ func aliveCheckPauseLoop(delay time.Duration, dl *DataLog, fd *os.File) {
 }
 
 // AliveSchedule test
-func AliveSchedule(delay time.Duration, dl *DataLog) error {
+func AliveSchedule(delay time.Duration, dl *DataLogWriter) error {
 
 	fd, err := os.OpenFile(aliveFilePath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {

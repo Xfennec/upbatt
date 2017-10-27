@@ -57,7 +57,7 @@ func Signals() (ch chan *dbus.Signal, err error) {
 }
 
 // SignalPump test
-func SignalPump(ch chan *dbus.Signal, datalog *DataLog) error {
+func SignalPump(ch chan *dbus.Signal, datalog *DataLogWriter) error {
 
 	for sig := range ch {
 

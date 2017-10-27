@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// DataLog test struct
-type DataLog struct {
+// DataLogWriter test struct
+type DataLogWriter struct {
 	file     *os.File
 	writer   *bufio.Writer
 	messages chan string
@@ -15,8 +15,8 @@ type DataLog struct {
 }
 
 // NewDataLog test
-func NewDataLog() (*DataLog, error) {
-	var dl DataLog
+func NewDataLog() (*DataLogWriter, error) {
+	var dl DataLogWriter
 	f, err := os.OpenFile(dataLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func NewDataLog() (*DataLog, error) {
 }
 
 // internal message channel pump
-func (dl *DataLog) pump() {
+func (dl *DataLogWriter) pump() {
 	for str := range dl.messages {
 		dl.writer.WriteString(str)
 		dl.writer.Flush()
@@ -38,22 +38,22 @@ func (dl *DataLog) pump() {
 }
 
 // AppendRaw test
-func (dl *DataLog) AppendRaw(str string) {
+func (dl *DataLogWriter) AppendRaw(str string) {
 	dl.messages <- str
 }
 
 // Append test
-func (dl *DataLog) Append(str string) {
+func (dl *DataLogWriter) Append(str string) {
 	dl.AppendRaw(time.Now().Format(time.RFC3339) + ";" + str + "\n")
 }
 
 // AddSuspendEvent test
-func (dl *DataLog) AddSuspendEvent() {
+func (dl *DataLogWriter) AddSuspendEvent() {
 	dl.suspends = append(dl.suspends, time.Now())
 }
 
 // AnySuspendEventBefore test
-func (dl *DataLog) AnySuspendEventBefore(date time.Time, window time.Duration) bool {
+func (dl *DataLogWriter) AnySuspendEventBefore(date time.Time, window time.Duration) bool {
 	for _, suspend := range dl.suspends {
 		if date.Sub(suspend) <= window {
 			return true

@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// based on alive.go:aliveCheckPauseLoop() code, needs dedup
 func readAliveDate(filename string) (*time.Time, error) {
 	var buffer []byte
 	buffer = make([]byte, 128)
@@ -44,7 +45,6 @@ func checkAliveDate(filename string, delay time.Duration) error {
 }
 
 func upbattClient() error {
-
 	err := checkAliveDate(aliveFilePath, aliveDelay)
 	if err != nil {
 		return fmt.Errorf("it seems that upbatt server is not currently running\nreason: %s", err)
