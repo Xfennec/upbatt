@@ -50,5 +50,13 @@ func upbattClient() error {
 		return fmt.Errorf("it seems that upbatt server is not currently running\nreason: %s", err)
 	}
 
+	dlm, err := DataLogMemNew(dataLogPath)
+	if err != nil {
+		return fmt.Errorf("can't parse log %s: %s", dataLogPath, err)
+	}
+
+	// debug
+	fmt.Println(dlm)
+
 	return nil
 }
