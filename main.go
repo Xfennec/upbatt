@@ -4,11 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 const dataLogPath = "/var/lib/upbatt/data.log"
 const aliveFilePath = "/var/lib/upbatt/alive.dat"
-const aliveDelay = 5
+const aliveDelay = 5 * time.Second
 
 func main() {
 

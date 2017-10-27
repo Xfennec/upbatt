@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 func upbattServer() error {
@@ -24,7 +23,7 @@ func upbattServer() error {
 		return err3
 	}
 
-	if err := AliveSchedule(aliveDelay*time.Second, datalog); err != nil {
+	if err := AliveSchedule(aliveDelay, datalog); err != nil {
 		return err
 	}
 
