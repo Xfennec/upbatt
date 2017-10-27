@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const dataLogPath = "/var/lib/upbatt/data.log"
-
 // DataLog test struct
 type DataLog struct {
 	file     *os.File

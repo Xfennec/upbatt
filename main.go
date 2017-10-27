@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+const dataLogPath = "/var/lib/upbatt/data.log"
+const aliveFilePath = "/var/lib/upbatt/alive.dat"
+const aliveDelay = 5
+
 func main() {
 
 	server := flag.Bool("server", false, "start server daemon")

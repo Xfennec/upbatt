@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const aliveFilePath = "/var/lib/upbatt/alive.dat"
-
 func aliveCheckPauseLoop(delay time.Duration, dl *DataLog, fd *os.File) {
 	go func() {
 		var buffer []byte

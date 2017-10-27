@@ -9,7 +9,6 @@ PermissionsStartOnly=true
 ExecStartPre=/bin/mkdir -p /var/lib/upbatt
 ExecStartPre=/bin/chown xfennec:xfennec /var/lib/upbatt
 ExecStart=/home/xfennec/Quiris/Go/bin/upbatt -server
-PIDFile=/var/run/upbatt.pid
 
 [Install]
 WantedBy=multi-user.target
