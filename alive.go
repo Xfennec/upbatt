@@ -8,14 +8,7 @@ import (
 
 const aliveFilePath = "/var/lib/upbatt/alive.dat"
 
-// AliveSchedule test
-func AliveSchedule(delay time.Duration, dl *DataLog) error {
-
-	fd, err := os.OpenFile(aliveFilePath, os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		return err
-	}
-
+func aliveCheckPauseLoop(delay time.Duration, dl *DataLog, fd *os.File) {
 	go func() {
 		var buffer []byte
 		buffer = make([]byte, 128)
@@ -32,7 +25,6 @@ func AliveSchedule(delay time.Duration, dl *DataLog) error {
 					date, err := time.Parse(time.RFC3339, org)
 					if err == nil {
 						// if it was more than delay*2 time ago, add a stop / start
-						// 	stopped := strings.TrimSpace(string(data))
 						diff := now.Sub(date)
 						if diff > delay*2 {
 							dl.AppendRaw(date.Format(time.RFC3339) + ";stop\n")
@@ -52,5 +44,17 @@ func AliveSchedule(delay time.Duration, dl *DataLog) error {
 			time.Sleep(delay)
 		}
 	}()
+}
+
+// AliveSchedule test
+func AliveSchedule(delay time.Duration, dl *DataLog) error {
+
+	fd, err := os.OpenFile(aliveFilePath, os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		return err
+	}
+
+	go aliveCheckPauseLoop(delay, dl, fd)
+
 	return nil
 }
