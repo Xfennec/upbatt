@@ -95,6 +95,14 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 
 				switch uiType {
 				case Battery:
+
+					nativePath, err := GetDeviceProperty(sig.Path, "org.freedesktop.UPower.Device."+NativePath)
+					if err != nil {
+						fmt.Println("failed to get UPower.Device nativePath", sig)
+						continue
+					}
+					nativePathStr := nativePath.Value().(string)
+
 					properties := make([]string, 0)
 					for key, val := range changedProperties {
 						switch key {
@@ -120,7 +128,7 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 						}
 					}
 					if len(properties) > 0 {
-						datalog.Append("data;" + strings.Join(properties, ","))
+						datalog.Append("data;" + nativePathStr + ";" + strings.Join(properties, ","))
 					}
 				case LinePower:
 					for key, val := range changedProperties {
