@@ -1,6 +1,24 @@
-- check for PID and logfile
-- ? "suspend count" on the current "boot"
+- on start, check current online/offline state vs log (and get percentage, I guess)
 - support for upower-only (and not systemd) systems
     -> "NotifySleep" / "Sleeping" signals?
 - test on multiple systems and distributions
 - add easy-to-parse output? (shell? json? both?)
+- display "Capacity"? (decrease with age)
+
+Target output:
+
+On battery since XXX [monotonic time]
+    + XXX suspended (XXX sleep/resume)
+    + XXX halted (XXX stop/start)
+Line power unplugged XXX (XXX ago)
+BAT0: XXX% [+ other infos of the same line/time]
+
+On line power since XXX [simple wall time]
+BAT0: XXX% [+ other infos of the same line/time]
+    charging since XXX [monotonic] from XXX%
+    + XXX suspended (XXX sleep/resume)
+    + XXX halted (XXX stop/start)
+BAT1: XXX% [+ other infos of the same line/time]
+    charged in XXX from XXX%
+    + XXX suspended (XXX sleep/resume)
+    + XXX halted (XXX stop/start)

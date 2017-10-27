@@ -55,8 +55,20 @@ func upbattClient() error {
 		return fmt.Errorf("can't parse log %s: %s", dataLogPath, err)
 	}
 
-	// debug
-	fmt.Println(dlm)
+	if len(dlm.Lines) == 0 {
+		return errors.New("empty log")
+	}
+
+	state := "unknown"
+	for it := DataLogIteratorNew(dlm); it.Prev(); {
+		event := it.Value().EventName
+		if event == "online" || event == "offline" {
+			state = event
+			break
+		}
+	}
+
+	fmt.Printf("state: %s\n", state)
 
 	return nil
 }
