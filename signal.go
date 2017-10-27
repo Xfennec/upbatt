@@ -9,6 +9,53 @@ import (
 	"github.com/godbus/dbus"
 )
 
+// Signal catches all signals.
+func Signal() (err error) {
+
+	conn, err := dbus.SystemBus()
+	if err != nil {
+
+		return
+	}
+
+	call := conn.BusObject().Call("org.freedesktop.DBus.AddMatch", 0, "sender=org.freedesktop.UPower,type=signal")
+	if call.Err != nil {
+
+		return call.Err
+	}
+
+	return
+}
+
+// SignalSystemd catches all signals.
+func SignalSystemd() (err error) {
+
+	conn, err := dbus.SystemBus()
+	if err != nil {
+
+		return
+	}
+
+	call := conn.BusObject().Call("org.freedesktop.DBus.AddMatch", 0, "sender=org.freedesktop.login1,type=signal")
+	if call.Err != nil {
+
+		return call.Err
+	}
+
+	return
+}
+
+// Signals returns a channel with all signals
+func Signals() (ch chan *dbus.Signal, err error) {
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		return nil, err
+	}
+	ch = make(chan *dbus.Signal, 10)
+	conn.Signal(ch)
+	return
+}
+
 // SignalPump test
 func SignalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 
@@ -39,7 +86,7 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLog) error {
 
 			switch intf {
 			case "org.freedesktop.UPower.Device":
-				pType, err := GetProperty(sig.Path, "org.freedesktop.UPower.Device."+Type)
+				pType, err := GetDeviceProperty(sig.Path, "org.freedesktop.UPower.Device."+Type)
 				if err != nil {
 					fmt.Println("failed to get UPower.Device Type", sig)
 					continue
