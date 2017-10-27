@@ -33,7 +33,7 @@ func aliveCheckPauseLoop(delay time.Duration, dl *DataLog, fd *os.File) {
 					}
 				}
 			} else {
-				// probably a first start
+				// probably a first start (no existing alive.dat)
 				dl.Append("start")
 			}
 
