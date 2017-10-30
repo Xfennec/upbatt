@@ -14,6 +14,7 @@ const aliveDelay = 5 * time.Second
 func main() {
 
 	server := flag.Bool("server", false, "start server daemon")
+	battery := flag.String("battery", "", "battery name")
 
 	flag.Parse()
 
@@ -23,7 +24,7 @@ func main() {
 			os.Exit(2)
 		}
 	} else {
-		if err := upbattClient(); err != nil {
+		if err := upbattClient(*battery); err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
 			os.Exit(3)
 		}

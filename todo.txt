@@ -1,4 +1,5 @@
-- on start, check current online/offline state vs log (and get percentage, I guess)
+- on start, check current online/offline state vs log (and get percentage + battery state, I guess)
+- deal with "same time events, wrong order" (ex: percentage and then resume)
 - support for upower-only (and not systemd) systems
     -> "NotifySleep" / "Sleeping" signals?
 - test on multiple systems and distributions
@@ -13,7 +14,7 @@ On battery since XXX [monotonic time]
 Line power unplugged XXX (XXX ago)
 BAT0: XXX% [+ other infos of the same line/time]
 
-On line power since XXX [simple wall time]
+On line power since XXX (XXX)[simple wall time]
 BAT0: XXX% [+ other infos of the same line/time]
     charging since XXX [monotonic] from XXX%
     + XXX suspended (XXX sleep/resume)

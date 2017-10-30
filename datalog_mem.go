@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -20,6 +21,27 @@ type DataLogLine struct {
 type DataLogMem struct {
 	Filename string
 	Lines    []DataLogLine
+}
+
+// HasData returns true if it's a data line with "name" field
+func (line *DataLogLine) HasData(name string) bool {
+	if line.EventName != data {
+		return false
+	}
+	_, exists := line.Data[name]
+	return exists
+}
+
+// GetDataState is an simple helper to get state
+func (line *DataLogLine) GetDataState() int {
+	val, _ := strconv.ParseInt(line.Data[state], 10, 32)
+	return int(val)
+}
+
+// GetDataPercentage is an simple helper to get percentage
+func (line *DataLogLine) GetDataPercentage() float64 {
+	val, _ := strconv.ParseFloat(line.Data[percentage], 64)
+	return val
 }
 
 // DataLogMemNew will parse filename to create a new DataLogMem

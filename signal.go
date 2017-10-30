@@ -122,6 +122,10 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLogWriter) error {
 							ttf := time.Duration(time.Duration(val.Value().(int64)) * time.Second)
 							str := "time_to_full=" + ttf.String()
 							properties = append(properties, str)
+						case State:
+							st := val.Value().(uint32)
+							str := "state=" + strconv.Itoa(int(st))
+							properties = append(properties, str)
 							// case Energy:
 							// 	energ := val.Value().(float64)
 							// 	fmt.Println("--- energy (W):", energ)
