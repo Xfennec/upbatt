@@ -44,6 +44,12 @@ func (line *DataLogLine) GetDataPercentage() float64 {
 	return val
 }
 
+// GetDataRate is an simple helper to get rate
+func (line *DataLogLine) GetDataRate() float64 {
+	val, _ := strconv.ParseFloat(line.Data[rate], 64)
+	return val
+}
+
 // DataLogMemNew will parse filename to create a new DataLogMem
 func DataLogMemNew(filename string) (*DataLogMem, error) {
 	var dlm DataLogMem

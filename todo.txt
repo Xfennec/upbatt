@@ -8,7 +8,7 @@
 
 Target output:
 
-On battery since XXX [monotonic time]
+On battery since XXX [monotonic time] (from XXX% ? it's battery specific)
     + XXX suspended (XXX sleep/resume)
     + XXX halted (XXX stop/start)
 Line power unplugged XXX (XXX ago)

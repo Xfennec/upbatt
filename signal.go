@@ -108,23 +108,23 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLogWriter) error {
 						switch key {
 						case Percentage:
 							perc := val.Value().(float64)
-							str := "percentage=" + strconv.FormatFloat(perc, 'f', -1, 64)
+							str := percentage + "=" + strconv.FormatFloat(perc, 'f', -1, 64)
 							properties = append(properties, str)
 						case EnergyRate:
 							erate := val.Value().(float64)
-							str := "rate=" + strconv.FormatFloat(erate, 'f', -1, 64)
+							str := rate + "=" + strconv.FormatFloat(erate, 'f', -1, 64)
 							properties = append(properties, str)
 						case TimeToEmpty:
 							tte := time.Duration(time.Duration(val.Value().(int64)) * time.Second)
-							str := "time_to_empty=" + tte.String()
+							str := timeToEmpty + "=" + tte.String()
 							properties = append(properties, str)
 						case TimeToFull:
 							ttf := time.Duration(time.Duration(val.Value().(int64)) * time.Second)
-							str := "time_to_full=" + ttf.String()
+							str := timeToFull + "=" + ttf.String()
 							properties = append(properties, str)
 						case State:
 							st := val.Value().(uint32)
-							str := "state=" + strconv.Itoa(int(st))
+							str := state + "=" + strconv.Itoa(int(st))
 							properties = append(properties, str)
 							// case Energy:
 							// 	energ := val.Value().(float64)
@@ -132,17 +132,17 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLogWriter) error {
 						}
 					}
 					if len(properties) > 0 {
-						datalog.Append("data;" + nativePathStr + ";" + strings.Join(properties, ","))
+						datalog.Append(data + ";" + nativePathStr + ";" + strings.Join(properties, ","))
 					}
 				case LinePower:
 					for key, val := range changedProperties {
 						switch key {
 						case Online:
-							online := val.Value().(bool)
-							if online == true {
-								datalog.Append("online")
+							isOnline := val.Value().(bool)
+							if isOnline == true {
+								datalog.Append(online)
 							} else {
-								datalog.Append("offline")
+								datalog.Append(offline)
 							}
 						}
 					}

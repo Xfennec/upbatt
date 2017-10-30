@@ -10,12 +10,6 @@ import (
 	"time"
 )
 
-const online = "online"
-const offline = "offline"
-const data = "data"
-const percentage = "percentage"
-const state = "state"
-
 // based on alive.go:aliveCheckPauseLoop() code, needs dedup
 func readAliveDate(filename string) (*time.Time, error) {
 	var buffer []byte
@@ -96,10 +90,11 @@ func upbattClient(battery string) error {
 	}
 
 	var powerEvent *DataLogLine
-	for it := DataLogIteratorNew(dlm); it.Prev(); {
-		eventName := it.Value().EventName
+	itPower := DataLogIteratorNew(dlm)
+	for itPower.Prev() {
+		eventName := itPower.Value().EventName
 		if eventName == online || eventName == offline {
-			powerEvent = it.Value()
+			powerEvent = itPower.Value()
 			break
 		}
 	}
@@ -110,9 +105,10 @@ func upbattClient(battery string) error {
 	}
 
 	var percentageEvent *DataLogLine
-	for it := DataLogIteratorNew(dlm); it.Prev(); {
-		if it.Value().NativePath == battery && it.Value().HasData(percentage) {
-			percentageEvent = it.Value()
+	itPerc := DataLogIteratorNew(dlm)
+	for itPerc.Prev() {
+		if itPerc.Value().NativePath == battery && itPerc.Value().HasData(percentage) {
+			percentageEvent = itPerc.Value()
 			break
 		}
 	}
@@ -147,14 +143,64 @@ func upbattClient(battery string) error {
 		fmt.Printf("%s: %s%%\n", battery, strconv.FormatFloat(percentageEvent.GetDataPercentage(), 'f', -1, 64))
 		switch stateEvent.GetDataState() {
 		case FullyCharged:
-			fmt.Println("charged")
+			fmt.Printf("    charged since %s (%s)\n", SinceFmt(stateEvent.Time), stateEvent.Time.Format("2006-01-02 15:04"))
 		case Charging:
-			fmt.Println("charging")
-		case Discharging:
-			fmt.Println("discharging")
+			fmt.Printf("    charging since %s (%s)\n", SinceFmt(stateEvent.Time), stateEvent.Time.Format("2006-01-02 15:04"))
 		}
 	case offline:
-		fmt.Printf("On battery since… who knows?\n")
+		const up = 1
+		const stopped = 2
+		const suspended = 3
+
+		var previousTime = itPower.Value().Time
+		var durationUp time.Duration
+		var durationStopped time.Duration
+		var durationSuspended time.Duration
+		var restarts = 0
+		var pauses = 0
+
+		// start from powerEvent
+		for itPower.Next() {
+			switch itPower.Value().EventName {
+			case stop:
+				diff := itPower.Value().Time.Sub(previousTime)
+				durationUp += diff
+				previousTime = itPower.Value().Time
+			case start:
+				diff := itPower.Value().Time.Sub(previousTime)
+				durationStopped += diff
+				restarts++
+				previousTime = itPower.Value().Time
+			case sleep:
+				diff := itPower.Value().Time.Sub(previousTime)
+				durationUp += diff
+				previousTime = itPower.Value().Time
+			case resume:
+				diff := itPower.Value().Time.Sub(previousTime)
+				durationSuspended += diff
+				pauses++
+				previousTime = itPower.Value().Time
+			}
+		}
+		durationUp += time.Now().Sub(previousTime)
+
+		fmt.Printf("On battery since %s\n", DurationFmt(durationUp))
+		fmt.Printf("    + %s stopped (%d %s)\n", DurationFmt(durationStopped), restarts, Decline("restart", restarts))
+		fmt.Printf("    + %s suspended (%d %s)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses))
+
+		var rateEvent *DataLogLine
+		itPerc.Prev() // it may be on the percentage line itself
+		for itPerc.Next() {
+			if itPerc.Value().NativePath == battery && itPerc.Value().HasData(rate) {
+				rateEvent = itPerc.Value()
+			}
+		}
+		fmt.Printf("%s: %s%%", battery, strconv.FormatFloat(percentageEvent.GetDataPercentage(), 'f', -1, 64))
+		if rateEvent != nil {
+			fmt.Printf(", rate %.1f W", rateEvent.GetDataRate())
+		}
+		fmt.Printf("\n")
+
 	}
 
 	return nil

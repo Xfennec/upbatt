@@ -26,13 +26,26 @@ func DurationRound(d, r time.Duration) time.Duration {
 	return d
 }
 
-// SinceFmt returns a string formatted duration since Now
-func SinceFmt(t time.Time) string {
-	since := time.Now().Sub(t)
+// DurationFmt return a string-formatted duration
+func DurationFmt(d time.Duration) string {
 	round := time.Minute
-	if since < 2*time.Minute {
+	if d < 2*time.Minute {
 		round = time.Second
 	}
-	durfmt := durafmt.Parse(DurationRound(since, round))
+	durfmt := durafmt.Parse(DurationRound(d, round))
 	return durfmt.String()
+}
+
+// SinceFmt returns a string-formatted duration since now
+func SinceFmt(t time.Time) string {
+	since := time.Now().Sub(t)
+	return DurationFmt(since)
+}
+
+// Decline word to its plural (adding a "s") if count != 1
+func Decline(word string, count int) string {
+	if count == 1 {
+		return word
+	}
+	return word + "s"
 }

@@ -39,6 +39,11 @@ func (iter *DataLogIterator) Prev() bool {
 	return true
 }
 
+// Key returns line id (mainly useful for debug)
+func (iter *DataLogIterator) Key() int {
+	return iter.current
+}
+
 // Value return the current value of the iterator (if possible)
 func (iter *DataLogIterator) Value() *DataLogLine {
 	if iter.current >= 0 && iter.current < len(iter.dlm.Lines) {
