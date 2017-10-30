@@ -1,3 +1,8 @@
+# Copy this file to /etc/systemd/system
+# (no symlink, it can generate issues because of mount order)
+# systemctl daemon-reload
+# systemctl enable --now upbatt.service
+
 [Unit]
 Description=upbatt daemon (battery uptime and stats)
 After=syslog.target
