@@ -189,15 +189,22 @@ func upbattClient(battery string) error {
 		fmt.Printf("    + %s suspended (%d %s)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses))
 
 		var rateEvent *DataLogLine
+		var tteEvent *DataLogLine
 		itPerc.Prev() // it may be on the percentage line itself
 		for itPerc.Next() {
 			if itPerc.Value().NativePath == battery && itPerc.Value().HasData(rate) {
 				rateEvent = itPerc.Value()
 			}
+			if itPerc.Value().NativePath == battery && itPerc.Value().HasData(timeToEmpty) {
+				tteEvent = itPerc.Value()
+			}
 		}
 		fmt.Printf("%s: %s%%", battery, strconv.FormatFloat(percentageEvent.GetDataPercentage(), 'f', -1, 64))
 		if rateEvent != nil {
 			fmt.Printf(", rate %.1f W", rateEvent.GetDataRate())
+		}
+		if tteEvent != nil {
+			fmt.Printf(", time to empty %s", rateEvent.GetDataTte())
 		}
 		fmt.Printf("\n")
 

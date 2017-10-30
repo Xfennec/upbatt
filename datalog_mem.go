@@ -50,6 +50,12 @@ func (line *DataLogLine) GetDataRate() float64 {
 	return val
 }
 
+// GetDataTte is an simple helper to get timeToEmpty
+func (line *DataLogLine) GetDataTte() string {
+	val, _ := line.Data[timeToEmpty]
+	return val
+}
+
 // DataLogMemNew will parse filename to create a new DataLogMem
 func DataLogMemNew(filename string) (*DataLogMem, error) {
 	var dlm DataLogMem
