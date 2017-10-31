@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const percHalfWindow = 5 * time.Minute
+
 // based on alive.go:aliveCheckPauseLoop() code, needs dedup
 func readAliveDate(filename string) (*time.Time, error) {
 	var buffer []byte
@@ -103,6 +105,7 @@ func upbattClient(battery string, force bool) error {
 		fmt.Printf("power state unknown, no available data (yet?)\n")
 		return nil
 	}
+	powerEventPercLine := dlm.FindClosestData(percentage, itPower.Key(), battery, percHalfWindow, percHalfWindow)
 
 	var percentageEvent *DataLogLine
 	itPerc := DataLogIteratorNew(dlm)
@@ -119,7 +122,7 @@ func upbattClient(battery string, force bool) error {
 	}
 
 	// Percentage can't be more than 10 minutes BEFORE power event
-	if powerEvent.Time.Sub(percentageEvent.Time) > 10*time.Minute {
+	if powerEvent.Time.Sub(percentageEvent.Time) > percHalfWindow*2 {
 		fmt.Printf("recent battery percentage unknown, no available data (yet?)\n")
 		return nil
 	}
@@ -148,46 +151,59 @@ func upbattClient(battery string, force bool) error {
 			fmt.Printf("    charging since %s (%s)\n", SinceFmt(stateEvent.Time), stateEvent.Time.Format("2006-01-02 15:04"))
 		}
 	case offline:
-		const up = 1
-		const stopped = 2
-		const suspended = 3
-
 		var previousTime = itPower.Value().Time
 		var durationUp time.Duration
 		var durationStopped time.Duration
 		var durationSuspended time.Duration
+		var percLostStopped float64
+		var percLostSuspended float64
 		var restarts = 0
 		var pauses = 0
+		var percStep1 *DataLogLine
+		var percStep2 *DataLogLine
 
 		// start from powerEvent
 		for itPower.Next() {
 			switch itPower.Value().EventName {
+			// case data:
+			// 	if itPower.Value().HasData(percentage) && itPower.Value().NativePath == battery {
+			// 		fmt.Println(itPower.Value().GetDataPercentage(), "%", itPower.Value().Time)
+			// 	}
 			case stop:
 				diff := itPower.Value().Time.Sub(previousTime)
 				durationUp += diff
 				previousTime = itPower.Value().Time
+				percStep1 = dlm.FindClosestData(percentage, itPower.Key(), battery, percHalfWindow, percHalfWindow)
+				// fmt.Println("stop")
 			case start:
 				diff := itPower.Value().Time.Sub(previousTime)
 				durationStopped += diff
 				restarts++
 				previousTime = itPower.Value().Time
+				percStep2 = dlm.FindClosestData(percentage, itPower.Key(), battery, percHalfWindow, percHalfWindow)
+				if percStep1 != nil && percStep2 != nil {
+					percLostStopped += percStep1.GetDataPercentage() - percStep2.GetDataPercentage()
+				}
+				// fmt.Println("start")
 			case sleep:
 				diff := itPower.Value().Time.Sub(previousTime)
 				durationUp += diff
 				previousTime = itPower.Value().Time
+				percStep1 = dlm.FindClosestData(percentage, itPower.Key(), battery, percHalfWindow, percHalfWindow)
+				// fmt.Println("sleep")
 			case resume:
 				diff := itPower.Value().Time.Sub(previousTime)
 				durationSuspended += diff
 				pauses++
 				previousTime = itPower.Value().Time
+				percStep2 = dlm.FindClosestData(percentage, itPower.Key(), battery, percHalfWindow, percHalfWindow)
+				if percStep1 != nil && percStep2 != nil {
+					percLostSuspended += percStep1.GetDataPercentage() - percStep2.GetDataPercentage()
+				}
+				// fmt.Println("resume")
 			}
 		}
 		durationUp += time.Now().Sub(previousTime)
-
-		fmt.Printf("On battery since %s\n", DurationFmt(durationUp))
-		fmt.Printf("    + %s stopped (%d %s)\n", DurationFmt(durationStopped), restarts, Decline("restart", restarts))
-		fmt.Printf("    + %s suspended (%d %s)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses))
-		fmt.Printf("Power line unplugged %s ago (%s)\n", SinceFmt(powerEvent.Time), powerEvent.Time.Format("2006-01-02 15:04"))
 
 		var rateEvent *DataLogLine
 		var tteEvent *DataLogLine
@@ -200,15 +216,24 @@ func upbattClient(battery string, force bool) error {
 				tteEvent = itPerc.Value()
 			}
 		}
-		fmt.Printf("%s: %s%%", battery, strconv.FormatFloat(percentageEvent.GetDataPercentage(), 'f', -1, 64))
+
+		fmt.Printf("On battery since %s", DurationFmt(durationUp))
+		if powerEventPercLine != nil {
+			fmt.Printf(" (from %s%%)", FloatFmt(powerEventPercLine.GetDataPercentage()))
+		}
+		fmt.Printf("\n")
+		fmt.Printf("    + %s stopped (%d %s, ~%s%% lost)\n", DurationFmt(durationStopped), restarts, Decline("restart", restarts), FloatFmt(percLostStopped))
+		fmt.Printf("    + %s suspended (%d %s, ~%s%% lost)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses), FloatFmt(percLostSuspended))
+		fmt.Printf("Power line unplugged %s ago (%s)\n", SinceFmt(powerEvent.Time), powerEvent.Time.Format("2006-01-02 15:04"))
+
+		fmt.Printf("%s: %s%%", battery, FloatFmt(percentageEvent.GetDataPercentage()))
 		if rateEvent != nil {
 			fmt.Printf(", rate %.1f W", rateEvent.GetDataRate())
 		}
 		if tteEvent != nil {
-			fmt.Printf(", time to empty %s", rateEvent.GetDataTte())
+			fmt.Printf(", %s to empty", rateEvent.GetDataTte())
 		}
 		fmt.Printf("\n")
-
 	}
 
 	return nil

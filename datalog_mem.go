@@ -103,3 +103,51 @@ func DataLogMemNew(filename string) (*DataLogMem, error) {
 	}
 	return &dlm, nil
 }
+
+// FindClosestData returns the closest DataLogLine to referenceLine with dataName field for battery
+func (dlm *DataLogMem) FindClosestData(dataName string, referenceLine int, battery string, maxBefore time.Duration, maxAfter time.Duration) *DataLogLine {
+	var candidateBefore *DataLogLine
+	var candidateAfter *DataLogLine
+
+	// start backward (--)
+	for i := referenceLine; i >= 0; i-- {
+		if dlm.Lines[referenceLine].Time.Sub(dlm.Lines[i].Time) > maxBefore {
+			break
+		}
+		if dlm.Lines[i].NativePath == battery && dlm.Lines[i].HasData(dataName) {
+			candidateBefore = &dlm.Lines[i]
+			break
+		}
+	}
+
+	// and then forward (++)
+	for i := referenceLine; i < len(dlm.Lines); i++ {
+		if dlm.Lines[i].Time.Sub(dlm.Lines[referenceLine].Time) > maxAfter {
+			break
+		}
+		if dlm.Lines[i].NativePath == battery && dlm.Lines[i].HasData(dataName) {
+			candidateAfter = &dlm.Lines[i]
+			break
+		}
+	}
+
+	if candidateBefore == nil && candidateAfter == nil {
+		return nil
+	}
+
+	if candidateAfter == nil {
+		return candidateBefore
+	}
+
+	if candidateBefore == nil {
+		return candidateAfter
+	}
+
+	diffBefore := dlm.Lines[referenceLine].Time.Sub(candidateBefore.Time)
+	diffAfter := candidateAfter.Time.Sub(dlm.Lines[referenceLine].Time)
+
+	if diffBefore < diffAfter {
+		return candidateBefore
+	}
+	return candidateAfter
+}

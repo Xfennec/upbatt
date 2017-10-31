@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/hako/durafmt"
@@ -48,4 +49,9 @@ func Decline(word string, count int) string {
 		return word
 	}
 	return word + "s"
+}
+
+// FloatFmt returns f as a string with minimal length
+func FloatFmt(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
