@@ -62,9 +62,9 @@ func batteriesFromLog(dlm *DataLogMem) []string {
 	return batteries
 }
 
-func upbattClient(battery string) error {
+func upbattClient(battery string, force bool) error {
 	err := checkAliveDate(aliveFilePath, aliveDelay)
-	if err != nil {
+	if err != nil && force == false {
 		return fmt.Errorf("it seems that upbatt server is not currently running\nreason: %s", err)
 	}
 
@@ -187,6 +187,7 @@ func upbattClient(battery string) error {
 		fmt.Printf("On battery since %s\n", DurationFmt(durationUp))
 		fmt.Printf("    + %s stopped (%d %s)\n", DurationFmt(durationStopped), restarts, Decline("restart", restarts))
 		fmt.Printf("    + %s suspended (%d %s)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses))
+		fmt.Printf("Power line unplugged %s ago (%s)\n", SinceFmt(powerEvent.Time), powerEvent.Time.Format("2006-01-02 15:04"))
 
 		var rateEvent *DataLogLine
 		var tteEvent *DataLogLine
