@@ -1,5 +1,4 @@
-- on start, check current online/offline state vs log (and get percentage + battery state, I guess)
-- deal with "same time events, wrong order" (ex: percentage and then resume)
+- on power output
 - support for upower-only (and not systemd) systems
     -> "NotifySleep" / "Sleeping" signals?
 - test on multiple systems and distributions
