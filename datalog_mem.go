@@ -65,6 +65,7 @@ func DataLogMemNew(filename string) (*DataLogMem, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer fd.Close()
 
 	scanner := bufio.NewScanner(fd)
 

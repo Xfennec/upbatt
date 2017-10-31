@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"os"
+	"sync"
 	"time"
 )
 
-func aliveCheckPauseLoop(delay time.Duration, dl *DataLogWriter, fd *os.File) {
+func aliveCheckPauseLoop(delay time.Duration, dl *DataLogWriter, fd *os.File, wg *sync.WaitGroup) {
 	go func() {
 		var buffer []byte
 		buffer = make([]byte, 128)
@@ -40,12 +41,19 @@ func aliveCheckPauseLoop(delay time.Duration, dl *DataLogWriter, fd *os.File) {
 			fd.Seek(0, 0)
 			copy(buffer, now.Format(time.RFC3339))
 			fd.Write(buffer)
+
+			if wg != nil {
+				wg.Done()
+				wg = nil
+			}
+
 			time.Sleep(delay)
 		}
 	}()
 }
 
 // AliveSchedule test
+// (will wait the first loop to finish)
 func AliveSchedule(delay time.Duration, dl *DataLogWriter) error {
 
 	fd, err := os.OpenFile(aliveFilePath, os.O_CREATE|os.O_RDWR, 0644)
@@ -53,7 +61,10 @@ func AliveSchedule(delay time.Duration, dl *DataLogWriter) error {
 		return err
 	}
 
-	go aliveCheckPauseLoop(delay, dl, fd)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go aliveCheckPauseLoop(delay, dl, fd, &wg)
 
+	wg.Wait()
 	return nil
 }

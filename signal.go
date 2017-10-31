@@ -98,7 +98,7 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLogWriter) error {
 
 					nativePath, err := GetDeviceProperty(sig.Path, "org.freedesktop.UPower.Device."+NativePath)
 					if err != nil {
-						fmt.Println("failed to get UPower.Device nativePath", sig)
+						fmt.Println("failed to get UPower.Device NativePath", sig)
 						continue
 					}
 					nativePathStr := nativePath.Value().(string)
@@ -108,11 +108,11 @@ func SignalPump(ch chan *dbus.Signal, datalog *DataLogWriter) error {
 						switch key {
 						case Percentage:
 							perc := val.Value().(float64)
-							str := percentage + "=" + strconv.FormatFloat(perc, 'f', -1, 64)
+							str := percentage + "=" + FloatFmt(perc)
 							properties = append(properties, str)
 						case EnergyRate:
 							erate := val.Value().(float64)
-							str := rate + "=" + strconv.FormatFloat(erate, 'f', -1, 64)
+							str := rate + "=" + FloatFmt(erate)
 							properties = append(properties, str)
 						case TimeToEmpty:
 							tte := time.Duration(time.Duration(val.Value().(int64)) * time.Second)

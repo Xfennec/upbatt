@@ -222,8 +222,12 @@ func upbattClient(battery string, force bool) error {
 			fmt.Printf(" (from %s%%)", FloatFmt(powerEventPercLine.GetDataPercentage()))
 		}
 		fmt.Printf("\n")
-		fmt.Printf("    + %s stopped (%d %s, ~%s%% lost)\n", DurationFmt(durationStopped), restarts, Decline("restart", restarts), FloatFmt(percLostStopped))
-		fmt.Printf("    + %s suspended (%d %s, ~%s%% lost)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses), FloatFmt(percLostSuspended))
+		if durationStopped > 0 {
+			fmt.Printf("    + %s stopped (%d %s, ~%s%% lost)\n", DurationFmt(durationStopped), restarts, Decline("restart", restarts), FloatFmt(percLostStopped))
+		}
+		if durationSuspended > 0 {
+			fmt.Printf("    + %s suspended (%d %s, ~%s%% lost)\n", DurationFmt(durationSuspended), pauses, Decline("pause", pauses), FloatFmt(percLostSuspended))
+		}
 		fmt.Printf("Power line unplugged %s ago (%s)\n", SinceFmt(powerEvent.Time), powerEvent.Time.Format("2006-01-02 15:04"))
 
 		fmt.Printf("%s: %s%%", battery, FloatFmt(percentageEvent.GetDataPercentage()))
