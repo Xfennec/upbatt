@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -142,8 +141,28 @@ func upbattClient(battery string, force bool) error {
 
 	switch powerEvent.EventName {
 	case online:
+		var rateEvent *DataLogLine
+		var ttfEvent *DataLogLine
+		itPerc.Prev() // it may be on the percentage line itself
+		for itPerc.Next() {
+			if itPerc.Value().NativePath == battery && itPerc.Value().HasData(rate) {
+				rateEvent = itPerc.Value()
+			}
+			if itPerc.Value().NativePath == battery && itPerc.Value().HasData(timeToFull) {
+				ttfEvent = itPerc.Value()
+			}
+		}
+
 		fmt.Printf("On line power since %s (%s)\n", SinceFmt(powerEvent.Time), powerEvent.Time.Format("2006-01-02 15:04"))
-		fmt.Printf("%s: %s%%\n", battery, strconv.FormatFloat(percentageEvent.GetDataPercentage(), 'f', -1, 64))
+		fmt.Printf("%s: %s%%", battery, FloatFmt(percentageEvent.GetDataPercentage()))
+		if rateEvent != nil && rateEvent.GetDataRate() != 0 {
+			fmt.Printf(", rate %.1f W", rateEvent.GetDataRate())
+		}
+		if ttfEvent != nil && rateEvent.GetDataTtf() != "0s" {
+			fmt.Printf(", %s to full", rateEvent.GetDataTtf())
+		}
+		fmt.Printf("\n")
+
 		switch stateEvent.GetDataState() {
 		case FullyCharged:
 			fmt.Printf("    charged since %s (%s)\n", SinceFmt(stateEvent.Time), stateEvent.Time.Format("2006-01-02 15:04"))

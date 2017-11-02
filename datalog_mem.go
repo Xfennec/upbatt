@@ -56,6 +56,12 @@ func (line *DataLogLine) GetDataTte() string {
 	return val
 }
 
+// GetDataTtf is an simple helper to get timeToFull
+func (line *DataLogLine) GetDataTtf() string {
+	val, _ := line.Data[timeToFull]
+	return val
+}
+
 // DataLogMemNew will parse filename to create a new DataLogMem
 func DataLogMemNew(filename string) (*DataLogMem, error) {
 	var dlm DataLogMem
