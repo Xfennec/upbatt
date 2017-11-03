@@ -158,7 +158,7 @@ func upbattClient(battery string, force bool) error {
 		if rateEvent != nil && rateEvent.GetDataRate() != 0 {
 			fmt.Printf(", rate %.1f W", rateEvent.GetDataRate())
 		}
-		if ttfEvent != nil && rateEvent.GetDataTtf() != "0s" {
+		if ttfEvent != nil && rateEvent.GetDataTtf() != "0s" && rateEvent.GetDataTtf() != "" {
 			fmt.Printf(", %s to full", rateEvent.GetDataTtf())
 		}
 		fmt.Printf("\n")

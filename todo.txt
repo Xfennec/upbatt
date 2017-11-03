@@ -7,7 +7,7 @@
 
 Target output:
 
-On battery since XXX [monotonic time] (from XXX% ? it's battery specific)
+On battery since XXX [monotonic time] (from XXX% ? it's battery specific, move on BAT0 line?)
     + XXX suspended (XXX sleep/resume)
     + XXX halted (XXX stop/start)
 Line power unplugged XXX (XXX ago)
@@ -19,6 +19,6 @@ BAT0: XXX% [+ other infos of the same line/time]
     + XXX suspended (XXX sleep/resume)
     + XXX halted (XXX stop/start)
 BAT1: XXX% [+ other infos of the same line/time]
-    charged in XXX from XXX%
+    charged in XXX from XXX% [monotonic too?]
     + XXX suspended (XXX sleep/resume)
     + XXX halted (XXX stop/start)
