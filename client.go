@@ -236,7 +236,7 @@ func upbattClient(battery string, force bool) error {
 			}
 		}
 
-		fmt.Printf("On battery since %s", DurationFmt(durationUp))
+		fmt.Printf("On battery for %s", DurationFmt(durationUp))
 		if powerEventPercLine != nil {
 			fmt.Printf(" (from %s%%)", FloatFmt(powerEventPercLine.GetDataPercentage()))
 		}
