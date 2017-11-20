@@ -5,6 +5,8 @@
 - add easy-to-parse output? (shell? json? both?)
 - display "Capacity"? (decrease with age)
 
+https://upower.freedesktop.org/docs/Device.html#Device:Online
+
 Target output:
 
 On battery since XXX [monotonic time] (from XXX% ? it's battery specific, move on BAT0 line?)
